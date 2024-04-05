@@ -1,0 +1,24 @@
+import boto3
+import json
+
+def get_aws_instance_metadata():
+    try:
+        # Create a session using the default profile
+        session = boto3.Session()
+
+        # Get the instance ID
+        instance_id = session.client('ec2', region_name='us-west-2').describe_instances()['Reservations'][0]['Instances'][0]['InstanceId']
+
+        # Get the instance metadata
+        ec2_metadata = session.client('ec2', region_name='us-west-2').describe_instance_attribute(InstanceId=instance_id, Attribute='userData')
+
+        # Return the metadata as JSON
+        return json.dumps(ec2_metadata, indent=4, default=str)
+    except Exception as e:
+        print(f"Error retrieving AWS instance metadata: {e}")
+        return None
+
+# Example usage
+metadata = get_aws_instance_metadata()
+if metadata:
+    print(metadata)
